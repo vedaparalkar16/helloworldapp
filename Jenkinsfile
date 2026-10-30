@@ -2,37 +2,75 @@
 pipeline {
     agent any
 
+    environment {
+        PYTHON = 'C:\\Users\\veda\\AppData\\Local\\Programs\\Python\\Python310\\python.exe'
+        DOCKER_IMAGE = 'uat-hello'
+    }
+
     stages {
 
-        stage('Checkout') {
+        stage('1. GitHub Checkout') {
             steps {
-                echo 'Pulling code from GitHub'
+                echo 'Pulling project from GitHub'
                 checkout scm
             }
         }
 
-        stage('Install Dependencies') {
+        stage('2. Check Python') {
             steps {
-                bat 'python -m pip install pytest'
+                bat '"%PYTHON%" --version'
             }
         }
 
-        stage('Run Tests') {
+        stage('3. Install Dependencies') {
             steps {
-                bat 'python -m pytest -v'
+                bat '"%PYTHON%" -m pip install pytest evidently pandas scikit-learn'
             }
         }
 
-        stage('Build Docker Image') {
+        stage('4. Run Application') {
             steps {
-                bat 'docker build -t uat-hello .'
+                bat '"%PYTHON%" hello.py'
             }
         }
 
-        stage('Run Docker Container') {
+        stage('5. Run Pytest') {
             steps {
-                bat 'docker run --rm uat-hello'
+                bat '"%PYTHON%" -m pytest -v -s'
             }
+        }
+
+        stage('6. Evidently Monitoring') {
+            steps {
+                bat '"%PYTHON%" monitor.py'
+            }
+        }
+
+        stage('7. Build Docker Image') {
+            steps {
+                bat 'docker build -t %DOCKER_IMAGE% .'
+            }
+        }
+
+        stage('8. Run Docker Container') {
+            steps {
+                bat 'docker run --rm %DOCKER_IMAGE%'
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: 'monitoring_report.html',
+                             allowEmptyArchive: true
+        }
+
+        success {
+            echo 'UAT PIPELINE COMPLETED SUCCESSFULLY!'
+        }
+
+        failure {
+            echo 'UAT PIPELINE FAILED. CHECK CONSOLE OUTPUT.'
         }
     }
 }
