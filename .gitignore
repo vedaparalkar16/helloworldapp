@@ -1,0 +1,46 @@
+
+# Python virtual environments
+venv/
+env/
+.venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# IDE settings
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Jenkins temporary files
+jenkins.log
+
+# Docker temporary files
+.docker/
